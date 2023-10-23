@@ -1,0 +1,103 @@
+17. select c.name,m.name from course c join course_modules cm on c.id=cm.courseid join modules m on cm.moduleid=m.id where c.name='pg-dac';
+
+18.select c.name,count(cm.moduleid) count from course c join course_modules cm on c.id=cm.courseid group by cm.courseid;
+
+20.select distinct c.* from course c join course_modules cm on c.id=cm.courseid join modules m on cm.moduleid=m.moduleid;
+
+21.select s.id,s.namefirst,count(sp.number) no from student s join student_phone sp on s.id=sp.studentid group by sp.studentid having no>2;
+
+22.select c.name from course c join course_modules cm on c.id=cm.courseid join modules m on m.id=cm.moduleid where m.name='java1';
+
+24. select s.namefirst,group_concat(sr.name) from student s join student_cards sr on s.id=sr.studentid group by sr.studentid;
+
+25.select s.namefirst,group_concat(c.name) from student s join batch_students bs on s.id=bs.studentid join course_batches cb on bs.batchid=cb.id join course c on c.id=cb.courseid group by s.namefirst;
+
+subquery
+
+1.select s.id,s.namefirst,count(bs.batchid) c from student s join batch_students bs;
+21.select namefirst,marks from student s join student_qualifications sq on s.id=sq.studentid where name='be' and  marks>(select marks from student s join student_qualifications sq on s.id=sq.studentid where name='be' and namefirst='rajan');
+22.select namefirst,year from student s join student_qualifications sq on s.id=sq.studentid where year=(select year from student_qualifications where name="be" and studentid=16);
+23.select * from (select row_number() over() r1,empno,ename from emp)e where r1%2=1;
+24.select studentID,sum(marks) from student_qualifications sq where studentid in (select studentID from student_qualifications sq where name="10" and name="12"   or name="BE" ) and name!="DIP" group by(studentid);
+25.select id,namefirst from student s where not exists(select name from student_cards sc where sc.studentid=s.id and sc.name='aadhaar') ;
+
+
+select ename,sal from emp where sal>(select sal from emp where ename='jones');
+
+select * from(select empno,deptno,if(deptno=10,'x',if(deptno=20,'y',NULL)) r1 from emp)e where r1 is not null ;
+
+select ename,sal from emp where sal in(select sal from emp group by sal having count(*)>1);
+select group_concat(ename),sal from emp where sal in(select sal from emp group by sal having count(*)>1) group by sal;
+
+exists/not exists
+
+select * from dept where exists(select * from emp where dept.deptno=emp.deptno);
+select * from dept where not exists(select * from emp where dept.deptno=emp.deptno);
+select * from dept where not exists(select true from emp where dept.deptno=emp.deptno);
+
+select ename,gender,deptno from emp where gender='m' order by deptno;//40,50
+select ename,gender,deptno from emp where gender='f' order by deptno;//10,50
+select deptno from emp f where exists(select * from emp m where f.deptno=m.deptno and gender='m') group by deptno;//f exist
+select deptno from emp f where exists(select * from emp m where f.deptno=m.deptno and gender='f') group by deptno;//m exist
+
+select deptno from emp f where not exists(select * from emp m where f.deptno=m.deptno and gender='m') group by deptno;//only female working
+select deptno from emp f where not exists(select * from emp m where f.deptno=m.deptno and gender='f') group by deptno;//only male working
+
+select * from newbooks where exists(select * from books where books.bookname=newbooks.bookname);
+select * from newbooks where not exists(select * from books where books.bookname=newbooks.bookname);
+
+select * from student s where not exists(select true from student_phone sp where s.id=sp.studentid);
+
+
+select sal from emp where ename in ('jones','martin');
+select sal from emp where sal>any(select sal from emp where ename in ('jones','martin'));//minimum se zada pure
+select sal from emp where sal<any(select sal from emp where ename in ('jones','martin'));//maximum se kam pure
+
+select deptno,sum(sal)from emp group by deptno;
++--------+----------+
+| deptno | sum(sal) |
++--------+----------+
+|     10 |    13850 |
+|     20 |    19375 |
+|     30 |    22225 |
+|     50 |     5250 |
++--------+----------+
+select deptno,sum(sal)from emp group by deptno where deptno in(10,50);
++--------+----------+
+| deptno | sum(sal) |
++--------+----------+
+|     10 |    13850 |
+|     50 |     5250 |
++--------+----------+
+select deptno,sum(sal) from emp group by deptno having sum(sal)>any(select sum(sal)from emp group by deptno having deptno in(10,50));//
++--------+----------+
+| deptno | sum(sal) |
++--------+----------+
+|     10 |    13850 |
+|     20 |    19375 |
+|     30 |    22225 |
++--------+----------+
+select deptno,sum(sal) from emp group by deptno having sum(sal)<any(select sum(sal)from emp group by deptno having deptno in(10,50));//
++--------+----------+
+| deptno | sum(sal) |
++--------+----------+
+|     50 |     5250 |
++--------+----------+
+select deptno,sum(sal) from emp group by deptno having sum(sal)<all(select sum(sal)from emp group by deptno having deptno in(10,50));
+empty set
+
+select deptno,sum(sal) from emp group by deptno having sum(sal)>all(select sum(sal)from emp group by deptno having deptno in(10,50));
++--------+----------+
+| deptno | sum(sal) |
++--------+----------+
+|     20 |    19375 |
+|     30 |    22225 |
++--------+----------+
+
+
+
+
+
+
+
+

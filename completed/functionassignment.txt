@@ -1,0 +1,4 @@
+drop function if exists f1;
+delimiter $
+create function f1() returns int
+
